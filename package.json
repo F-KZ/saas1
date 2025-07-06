@@ -9,19 +9,35 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "canvas": "^3.1.2",
+    "chrono-node": "^2.8.3",
+    "compromise": "^14.14.4",
+    "docx": "^9.5.1",
+    "googleapis": "^150.0.1",
+    "match-sorter": "^8.0.3",
+    "natural": "^8.1.0",
+    "next": "15.3.4",
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^1.1.1",
+    "pdf2pic": "^3.2.0",
+    "pdfjs-dist": "^3.11.174",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.4"
+    "spacy-nlp": "^1.0.11",
+    "tesseract.js": "^6.0.1",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@prisma/client": "^6.10.1",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
-    "@eslint/eslintrc": "^3"
+    "prisma": "^6.10.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
