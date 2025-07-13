@@ -1,203 +1,258 @@
-// Base de données de compétences
-const SKILLS_DB = [
-  'React', 'TypeScript', 'Node.js', 'Next.js', 'JavaScript', 'Python',
-  'Tests unitaires', 'Scrum', 'API REST', 'React Native', 'SEO',
-  'HTML', 'CSS', 'Git', 'MongoDB', 'PostgreSQL', 'Prisma', 'Express',
-  'Docker', 'AWS', 'Vercel', 'Tailwind CSS', 'Bootstrap', 'Redux',
-  'GraphQL', 'Jest', 'Cypress', 'Agile', 'Kanban', 'CI/CD', 'PHP',
-  'Laravel', 'Vue.js', 'Angular', 'Sass', 'Less', 'Webpack', 'Babel',
-  'NPM', 'Yarn', 'Linux', 'MacOS', 'Windows', 'Figma', 'Adobe XD',
-  'Photoshop', 'Illustrator', 'WordPress', 'Drupal', 'Joomla'
-];
 
-// Titres de sections majeures pour détecter les limites
-const MAJOR_SECTIONS = [
-  'expérience', 'expériences', 'experience', 'experiences',
-  'formation', 'éducation', 'education', 'diplômes', 'diplomes',
-  'projets', 'projet', 'projects', 'project',
-  'langues', 'languages', 'langue', 'language',
-  'références', 'references', 'référence', 'reference',
-  'certifications', 'certification', 'certificats', 'certificat',
-  'publications', 'publication', 'recherche', 'research',
-  'objectif', 'objectifs', 'objective', 'objectives',
-  'profil', 'profile', 'résumé', 'resume', 'summary'
-];
+// lib/skillsExtractor.js
+import { matchSorter } from 'match-sorter';
+import natural from 'natural';
 
-export function extractSkillsOnly(rawText) {
-  console.log('Extraction compétences - Début analyse');
+const { WordTokenizer } = natural;
+const tokenizer = new WordTokenizer();
+
+// Configuration centrale
+const CONFIG = {
+  MIN_SKILL_LENGTH: 3,
+  MAX_SKILL_LENGTH: 50,
+  SKILL_SECTION_PATTERNS: [
+    'compétences', 'skills', 'technologies', 'outils', 
+    'atouts', 'langages', 'frameworks', 'expertise',
+    'savoirs', 'connaissances', 'maîtrise', 'technologies maîtrisées',
+    'stack technique', 'environnement technique', 'outils de développement'
+  ],
+  SECTION_END_PATTERNS: [
+    'expérience', 'formation', 'projets', 'langues',
+    'références', 'certifications', 'publications',
+    'objectif', 'profil', 'éducation', 'diplômes',
+    'parcours', 'historique', 'emplois'
+  ],
+  COMMON_SKILLS: [
+    // Langages de programmation
+    'JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'Scala',
+    
+    // Frameworks Frontend
+    'React', 'Angular', 'Vue.js', 'Vue', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby', 'Ember.js',
+    
+    // Frameworks Backend
+    'Node.js', 'Express', 'Django', 'Flask', 'FastAPI', 'Spring Boot', 'Laravel', 'Symfony', 'ASP.NET', 'Ruby on Rails',
+    
+    // Bases de données
+    'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'SQLite', 'Oracle', 'SQL Server', 'MariaDB',
+    
+    // Cloud & DevOps
+    'Docker', 'Kubernetes', 'AWS', 'Azure', 'Google Cloud', 'GCP', 'Heroku', 'Vercel', 'Netlify', 'DigitalOcean',
+    
+    // Outils de développement
+    'Git', 'GitHub', 'GitLab', 'Bitbucket', 'Jenkins', 'CircleCI', 'Travis CI', 'GitHub Actions',
+    
+    // Tests
+    'Jest', 'Mocha', 'Chai', 'Cypress', 'Selenium', 'Playwright', 'Puppeteer', 'Vitest',
+    
+    // CSS & Styling
+    'CSS', 'Sass', 'SCSS', 'Less', 'Tailwind CSS', 'Bootstrap', 'Material-UI', 'Ant Design', 'Styled Components',
+    
+    // Outils de build
+    'Webpack', 'Vite', 'Rollup', 'Parcel', 'Babel', 'ESLint', 'Prettier',
+    
+    // Méthodologies
+    'Agile', 'Scrum', 'Kanban', 'DevOps', 'CI/CD', 'TDD', 'BDD',
+    
+    // APIs & Services
+    'REST API', 'GraphQL', 'gRPC', 'WebSocket', 'Microservices', 'Serverless',
+    
+    // Monitoring & Analytics
+    'Prometheus', 'Grafana', 'ELK Stack', 'Sentry', 'Google Analytics', 'Mixpanel',
+    
+    // Mobile
+    'React Native', 'Flutter', 'Ionic', 'Cordova', 'Xamarin',
+    
+    // IA & ML
+    'TensorFlow', 'PyTorch', 'Scikit-learn', 'Pandas', 'NumPy', 'Matplotlib',
+    
+    // Autres
+    'Linux', 'Ubuntu', 'CentOS', 'Apache', 'Nginx', 'WordPress', 'Shopify'
+  ],
+  STOP_WORDS: new Set([
+    'et', 'avec', 'pour', 'dans', 'sur', 'par', 'de', 'du', 'des',
+    'la', 'le', 'les', 'un', 'une', 'au', 'aux', 'à', 'en', 'se',
+    'ce', 'ces', 'sa', 'ses', 'son', 'sont', 'être', 'avoir', 'faire',
+    'plus', 'moins', 'très', 'bien', 'bon', 'bonne', 'grand', 'petit',
+    'nouveau', 'nouvelle', 'ancien', 'ancienne', 'autre', 'autres'
+  ])
+};
+
+export function extractSkills(rawText) {
+  // Normalisation du texte
+  const normalizedText = normalizeText(rawText);
   
-  // Nettoyage du texte
-  const cleanedText = rawText
+  // Stratégies d'extraction par ordre de priorité
+  const extractionStrategies = [
+    extractFromExplicitSkillSection,
+    extractFromBulletLists,
+    extractFromInlineLists,
+    extractFromContextualMentions,
+    extractFromSkillPatterns
+  ];
+
+  const skills = new Set();
+
+  for (const strategy of extractionStrategies) {
+    const foundSkills = strategy(normalizedText);
+    foundSkills.forEach(skill => skills.add(skill));
+    
+    // Si on a trouvé des compétences via une stratégie prioritaire, on s'arrête
+    if (skills.size >= 10) break;
+  }
+
+  return Array.from(skills)
+    .filter(isValidSkill)
+    .map(normalizeSkill)
+    .sort();
+}
+
+// Fonctions utilitaires
+function normalizeText(text) {
+  return text
     .replace(/\s+/g, ' ')
     .replace(/\n+/g, '\n')
-    .trim();
-
-  // 1. Chercher la section skills/compétences complète
-  const skillsSection = extractSkillsSection(cleanedText);
-  
-  if (skillsSection) {
-    console.log('Section compétences trouvée:', skillsSection);
-    return extractSkillsFromSection(skillsSection);
-  }
-
-  // 2. Fallback: chercher des compétences dans tout le texte
-  console.log('Aucune section skills trouvée, recherche dans tout le texte');
-  return extractSkillsFromText(cleanedText);
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .toLowerCase();
 }
 
-function extractSkillsSection(text) {
-  // Patterns pour détecter le début de la section skills
-  const skillSectionStartPatterns = [
-    // Titres en majuscules
-    /(?:^|\n)\s*(?:COMPÉTENCES?|SKILLS?|TECHNOLOGIES?|OUTILS?|ATOUTS?|LANGAGES?|FRAMEWORKS?)[:\s]*/gi,
-    // Titres avec première lettre majuscule
-    /(?:^|\n)\s*(?:Compétences?|Skills?|Technologies?|Outils?|Atouts?|Langages?|Frameworks?)[:\s]*/gi,
-    // Titres en gras (simulés par des caractères spéciaux ou répétition)
-    /(?:^|\n)\s*(?:compétences?|skills?|technologies?|technologies? maîtrisées?|outils?|atouts?|langages?|frameworks?)[:\s]*/gi,
-    // Autres variations
-    /(?:^|\n)\s*(?:maîtrise|connaissance|expérience)[:\s]*/gi
-  ];
-
-  // Patterns pour détecter les titres de sections majeures (plus robustes)
-  const sectionPatterns = [
-    // Titres en majuscules
-    ...MAJOR_SECTIONS.map(section => 
-      new RegExp(`(?:^|\n)\\s*${section.toUpperCase()}[:\s]*`, 'gi')
-    ),
-    // Titres avec première lettre majuscule
-    ...MAJOR_SECTIONS.map(section => 
-      new RegExp(`(?:^|\n)\\s*${section.charAt(0).toUpperCase() + section.slice(1)}[:\s]*`, 'gi')
-    ),
-    // Titres en gras (simulés)
-    ...MAJOR_SECTIONS.map(section => 
-      new RegExp(`(?:^|\n)\\s*${section}[:\s]*`, 'gi')
-    ),
-    // Patterns pour les titres structurés (numérotés, avec tirets, etc.)
-    /(?:^|\n)\s*(?:\d+\.?\s*)?(?:expérience|formation|projets?|langues?|références?|certifications?)[:\s]*/gi,
-    // Titres avec séparateurs
-    /(?:^|\n)\s*[-=*_]{3,}\s*(?:expérience|formation|projets?|langues?|références?|certifications?)[:\s]*/gi
-  ];
-
-  for (const startPattern of skillSectionStartPatterns) {
-    const startMatch = startPattern.exec(text);
-    if (startMatch) {
-      const startIndex = startMatch.index + startMatch[0].length;
-      const remainingText = text.substring(startIndex);
-      
-      // Chercher la prochaine section majeure
-      let endIndex = remainingText.length;
-      for (const sectionPattern of sectionPatterns) {
-        const sectionMatch = sectionPattern.exec(remainingText);
-        if (sectionMatch && sectionMatch.index < endIndex) {
-          endIndex = sectionMatch.index;
-        }
-      }
-      
-      // Extraire la section skills
-      const skillsSection = remainingText.substring(0, endIndex).trim();
-      if (skillsSection.length > 10) { // Au moins 10 caractères pour être valide
-        return skillsSection;
-      }
-    }
-  }
-
-  return null;
+function normalizeSkill(skill) {
+  const commonVariations = {
+    'js': 'JavaScript',
+    'reactjs': 'React',
+    'nodejs': 'Node.js',
+    'texts unitaires': 'Tests unitaires',
+    'react native': 'React Native',
+    'tailwind': 'Tailwind CSS',
+    'bootstrap': 'Bootstrap',
+    'material ui': 'Material-UI',
+    'styled components': 'Styled Components',
+    'webpack': 'Webpack',
+    'vite': 'Vite',
+    'eslint': 'ESLint',
+    'prettier': 'Prettier',
+    'git': 'Git',
+    'github': 'GitHub',
+    'gitlab': 'GitLab',
+    'docker': 'Docker',
+    'kubernetes': 'Kubernetes',
+    'aws': 'AWS',
+    'azure': 'Azure',
+    'gcp': 'Google Cloud',
+    'postgresql': 'PostgreSQL',
+    'mongodb': 'MongoDB',
+    'redis': 'Redis',
+    'mysql': 'MySQL',
+    'sql': 'SQL',
+    'graphql': 'GraphQL',
+    'rest api': 'REST API',
+    'microservices': 'Microservices',
+    'serverless': 'Serverless',
+    'ci/cd': 'CI/CD',
+    'tdd': 'TDD',
+    'bdd': 'BDD',
+    'agile': 'Agile',
+    'scrum': 'Scrum',
+    'kanban': 'Kanban',
+    'devops': 'DevOps'
+  };
+  
+  const normalized = skill.toLowerCase().trim();
+  return commonVariations[normalized] || 
+    skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase();
 }
 
-function extractSkillsFromSection(skillsSection) {
-  const foundSkills = [];
-  
-  // Extraire tous les éléments de la section (séparés par virgules, tirets, etc.)
-  const skillItems = skillsSection
-    .split(/[,•·\n;]/)
-    .map(item => item.trim())
-    .filter(item => item.length > 2)
-    .map(item => {
-      // Nettoyer et normaliser
-      let cleaned = item.replace(/^[-•·\s]+/, '').replace(/[\s-]+$/, '');
-      return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
-    })
-    .filter(item => item.length > 2);
-
-  // Ajouter tous les éléments qui ne sont pas des titres de sections
-  skillItems.forEach(item => {
-    if (!MAJOR_SECTIONS.some(section => 
-      item.toLowerCase().includes(section.toLowerCase())
-    )) {
-      // Vérifier si c'est une compétence valide (pas un mot générique)
-      const genericWords = ['et', 'avec', 'pour', 'dans', 'sur', 'par', 'de', 'la', 'le', 'les', 'un', 'une', 'des', 'du', 'au', 'aux'];
-      if (!genericWords.includes(item.toLowerCase()) && item.length > 2) {
-        foundSkills.push(item);
-      }
-    }
-  });
-
-  // Chercher des listes avec tirets ou puces
-  const listPatterns = [
-    /[-•·]\s*([A-Za-zÀ-ÿ\s]+)/g,
-    /^\s*[-•·]\s*([A-Za-zÀ-ÿ\s]+)/gm
-  ];
-
-  listPatterns.forEach(pattern => {
-    const matches = skillsSection.matchAll(pattern);
-    for (const match of matches) {
-      const skill = match[1]?.trim();
-      if (skill && skill.length > 2 && !foundSkills.includes(skill)) {
-        const normalizedSkill = skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase();
-        foundSkills.push(normalizedSkill);
-      }
-    }
-  });
-
-  // Supprimer les doublons et trier
-  const uniqueSkills = [...new Set(foundSkills)].sort();
-  
-  console.log('Compétences extraites de la section:', uniqueSkills);
-  return uniqueSkills;
+function isValidSkill(skill) {
+  return (
+    skill.length >= CONFIG.MIN_SKILL_LENGTH &&
+    skill.length <= CONFIG.MAX_SKILL_LENGTH &&
+    !CONFIG.STOP_WORDS.has(skill.toLowerCase()) &&
+    !isSectionHeader(skill) &&
+    !isCommonWord(skill)
+  );
 }
 
-function extractSkillsFromText(text) {
-  const foundSkills = [];
-  
-  // Chercher des listes de compétences dans tout le texte
-  const listPatterns = [
-    /[-•·]\s*([A-Za-zÀ-ÿ\s]+)/g,
-    /^\s*[-•·]\s*([A-Za-zÀ-ÿ\s]+)/gm
-  ];
-
-  listPatterns.forEach(pattern => {
-    const matches = text.matchAll(pattern);
-    for (const match of matches) {
-      const skill = match[1]?.trim();
-      if (skill && skill.length > 2 && !foundSkills.includes(skill)) {
-        const normalizedSkill = skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase();
-        foundSkills.push(normalizedSkill);
-      }
-    }
-  });
-
-  // Supprimer les doublons et trier
-  const uniqueSkills = [...new Set(foundSkills)].sort();
-  
-  console.log('Compétences extraites du texte complet:', uniqueSkills);
-  return uniqueSkills;
+function isSectionHeader(text) {
+  return CONFIG.SECTION_END_PATTERNS.some(section => 
+    text.toLowerCase().includes(section.toLowerCase())
+  );
 }
 
-// Fonction pour extraire les compétences avec contexte
-export function extractSkillsWithContext(rawText) {
-  const skills = extractSkillsOnly(rawText);
-  
-  // Chercher le contexte autour des compétences
-  const skillsWithContext = skills.map(skill => {
-    const regex = new RegExp(`([^.]*${skill}[^.]*)`, 'gi');
-    const matches = rawText.match(regex);
-    const context = matches ? matches[0].trim() : '';
+function isCommonWord(text) {
+  const commonWords = ['année', 'années', 'mois', 'mois', 'jour', 'jours', 'fois', 'fois', 'fois'];
+  return commonWords.includes(text.toLowerCase());
+}
+
+// Stratégies d'extraction
+function extractFromExplicitSkillSection(text) {
+  for (const pattern of CONFIG.SKILL_SECTION_PATTERNS) {
+    const regex = new RegExp(
+      `(?:^|\\n)\\s*${pattern}[\\s:]*\\n([\\s\\S]+?)(?:\\n\\s*(?:${CONFIG.SECTION_END_PATTERNS.join('|')})[\\s:]|$)`, 
+      'i'
+    );
     
-    return {
-      skill,
-      context: context.length > 0 ? context : null
-    };
-  });
+    const match = text.match(regex);
+    if (match) {
+      const sectionContent = match[1];
+      return extractItemsFromSection(sectionContent);
+    }
+  }
+  return [];
+}
 
-  return skillsWithContext;
-} 
+function extractFromBulletLists(text) {
+  const bulletPattern = /(?:^|\n)\s*[-•·*]\s*([^\n]+)/g;
+  const matches = [...text.matchAll(bulletPattern)];
+  return matches.map(m => m[1].trim());
+}
+
+function extractFromInlineLists(text) {
+  const inlinePattern = /(?:^|\n)\s*(?:[A-Za-zÀ-ÿ]+[,\s]*)+/g;
+  const matches = [...text.matchAll(inlinePattern)];
+  return matches.flatMap(m => 
+    m[0].split(/[,;]/)
+      .map(item => item.trim())
+      .filter(item => item)
+  );
+}
+
+function extractFromContextualMentions(text) {
+  // Utilisation de la base de compétences connues
+  return CONFIG.COMMON_SKILLS.filter(skill => 
+    new RegExp(`\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(text)
+  );
+}
+
+function extractFromSkillPatterns(text) {
+  const skills = [];
+  
+  // Pattern pour les compétences avec niveau (ex: "JavaScript (avancé)")
+  const levelPattern = /([A-Za-zÀ-ÿ\s]+)\s*\(?(débutant|intermédiaire|avancé|expert|maîtrisé|connais|utilise)\)?/gi;
+  const levelMatches = [...text.matchAll(levelPattern)];
+  levelMatches.forEach(match => {
+    const skill = match[1].trim();
+    if (skill.length > 2) {
+      skills.push(skill);
+    }
+  });
+  
+  // Pattern pour les années d'expérience (ex: "5 ans JavaScript")
+  const yearsPattern = /(\d+)\s*(?:ans?|années?)\s+([A-Za-zÀ-ÿ\s]+)/gi;
+  const yearsMatches = [...text.matchAll(yearsPattern)];
+  yearsMatches.forEach(match => {
+    const skill = match[2].trim();
+    if (skill.length > 2) {
+      skills.push(skill);
+    }
+  });
+  
+  return skills;
+}
+
+function extractItemsFromSection(sectionText) {
+  return [
+    ...extractFromBulletLists(sectionText),
+    ...extractFromInlineLists(sectionText),
+    ...extractFromContextualMentions(sectionText),
+    ...extractFromSkillPatterns(sectionText)
+  ].filter(isValidSkill);
+}

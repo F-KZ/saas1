@@ -2,11 +2,61 @@ import { matchSorter } from 'match-sorter';
 
 // Base de données de compétences
 const SKILLS_DB = [
-  'React', 'TypeScript', 'Node.js', 'Next.js', 'JavaScript', 'Python',
-  'Tests unitaires', 'Scrum', 'API REST', 'React Native', 'SEO',
-  'HTML', 'CSS', 'Git', 'MongoDB', 'PostgreSQL', 'Prisma', 'Express',
-  'Docker', 'AWS', 'Vercel', 'Tailwind CSS', 'Bootstrap', 'Redux',
-  'GraphQL', 'Jest', 'Cypress', 'Agile', 'Kanban', 'CI/CD'
+  // ===== LANGAGES =====
+  'JavaScript', 'TypeScript', 'Python', 'Java', 'PHP', 'Ruby', 'Go', 'Rust',
+  'C#', 'Swift', 'Kotlin', 'Dart', 'Elixir', 'SQL', 'GraphQL', 'HTML', 'CSS',
+  'Sass', 'Less', 'Bash', 'Shell',
+
+  // ===== FRONTEND =====
+  'React', 'Next.js', 'Vue.js', 'Angular', 'Svelte', 'SolidJS', 'Astro',
+  'Tailwind CSS', 'Bootstrap', 'Material UI', 'Chakra UI', 'Styled Components',
+  'Emotion', 'Redux', 'Zustand', 'Jotai', 'Apollo Client', 'React Query',
+  'Framer Motion', 'Three.js', 'D3.js',
+
+  // ===== BACKEND =====
+  'Node.js', 'Express', 'NestJS', 'Fastify', 'Django', 'Flask', 'FastAPI',
+  'Laravel', 'Ruby on Rails', 'Spring Boot', 'ASP.NET', 'Phoenix', 'Gin',
+  'Echo', 'Ktor', 'Prisma', 'Sequelize', 'TypeORM', 'Mongoose', 'Hibernate','C#',
+
+  // ===== MOBILE =====
+  'React Native', 'Flutter', 'SwiftUI', 'Jetpack Compose', 'KMM', 'Ionic',
+
+  // ===== BASE DE DONNÉES =====
+  'MongoDB', 'PostgreSQL', 'MySQL', 'SQLite', 'Firebase', 'Supabase',
+  'Redis', 'Cassandra', 'DynamoDB', 'Neo4j', 'Elasticsearch', 'MariaDB',
+  'Cosmos DB', 'FaunaDB',
+
+  // ===== DEVOPS & CLOUD =====
+  'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP', 'Vercel', 'Netlify',
+  'Heroku', 'DigitalOcean', 'Terraform', 'Ansible', 'Jenkins', 'GitHub Actions',
+  'GitLab CI', 'CircleCI', 'ArgoCD', 'Prometheus', 'Grafana', 'Istio',
+  'Nginx', 'Apache','.Net'
+
+  // ===== TESTING =====
+  'Jest', 'Cypress', 'Vitest', 'Testing Library', 'Mocha', 'Chai', 'Jasmine',
+  'Playwright', 'Puppeteer', 'Selenium', 'JUnit', 'PyTest', 'Cucumber',
+  'SonarQube', 'Postman', 'Insomnia',
+
+  // ===== MÉTHODOLOGIES =====
+  'Agile', 'Scrum', 'Kanban', 'SAFe', 'Lean', 'XP', 'TDD', 'BDD', 'DDD',
+  'CI/CD', 'Microservices', 'Monolith', 'Serverless', 'Hexagonal Architecture',
+  'Clean Architecture', 'Event Sourcing', 'CQRS',
+
+  // ===== OUTILS =====
+  'Git', 'GitHub', 'GitLab', 'Bitbucket', 'VS Code', 'IntelliJ', 'WebStorm',
+  'Figma', 'Adobe XD', 'Sketch', 'Jira', 'Trello', 'Asana', 'Notion',
+  'Confluence', 'Slack', 'Discord', 'Zoom', 'Teams', 'ClickUp', 'Linear',
+
+  // ===== SÉCURITÉ =====
+  'OAuth', 'JWT', 'OpenID Connect', 'SAML', 'SSL/TLS', 'CORS', 'CSP',
+  'Helmet.js', 'OWASP', 'Penetration Testing', 'Burp Suite', 'ZAP',
+  'Cryptographie', 'Sécurité API', 'GDPR Compliance',
+
+  // ===== AUTRES =====
+  'SEO', 'Performance Optimization', 'Accessibility', 'i18n', 'l10n',
+  'Web Components', 'WebAssembly', 'Progressive Web Apps', 'Electron',
+  'Web Extensions', 'Blockchain', 'Web3', 'Solidity', 'TensorFlow.js',
+  'Machine Learning', 'Computer Vision', 'NLP'
 ];
 
 export function structureCV(rawText) {
