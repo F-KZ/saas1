@@ -2,6 +2,7 @@
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import useUploadStore from '@/store/UploadStore'
+import Link from 'next/link'
 
 export default function Previsu() {
   const searchParams = useSearchParams()
@@ -10,6 +11,7 @@ export default function Previsu() {
   const [skills, setSkills] = useState([])
   const [skillsLoading, setSkillsLoading] = useState(false)
   const [skillsError, setSkillsError] = useState(null)
+  const { extractedSkills, setExtractedSkills, addSkill } = useUploadStore()
 
   console.log('URL reçue dans Previsu:', url)
   console.log('Fichier CV:', cvFile)
@@ -68,6 +70,7 @@ export default function Previsu() {
 
       if (data.success) {
         setSkills(data.skills)
+        setExtractedSkills(data.skills)
         console.log('Compétences extraites:', data.skills)
       } else {
         setSkillsError(data.error || 'Erreur lors de l\'extraction des compétences')
@@ -160,6 +163,10 @@ export default function Previsu() {
               className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 disabled:bg-gray-400 transition-colors"
             >
               {skillsLoading ? 'Extraction...' : 'Extraire les compétences (NLP)'}
+            </button>
+
+            <button className='text-sm font-light shadow-lg rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors'>
+              <Link href="/JobSearch">Lancer l'analyse</Link>
             </button>
           </div>
 
