@@ -2,17 +2,13 @@
 const nextConfig = {
   // 1. Configuration de base
   reactStrictMode: true,
-  swcMinify: true,
   output: 'standalone', // Pour le déploiement Docker
 
   // 2. Optimisation des bundles
-  experimental: {
-    esmExternals: 'loose',
-    serverComponentsExternalPackages: ['pdf-lib', 'pdfjs-dist'],
-  },
+  serverExternalPackages: ['pdf-lib', 'pdfjs-dist'],
 
   // 3. Gestion des fichiers statiques
-  webpack: (config, { isServer }) => {
+  webpack: (config: any, { isServer }: { isServer: boolean }) => {
     // Configuration spéciale pour PDF.js
     config.resolve.alias['pdfjs-dist'] = 'pdfjs-dist/legacy/build/pdf'
     
@@ -48,13 +44,6 @@ const nextConfig = {
         ]
       }
     ];
-  },
-
-  // 6. Limites d'upload
-  api: {
-    bodyParser: {
-      sizeLimit: '5mb' // Correspond à la limite de votre API
-    }
   }
 };
 

@@ -1,4 +1,4 @@
-import { matchSorter } from 'match-sorter';
+
 
 // Base de données de compétences
 const SKILLS_DB = [
