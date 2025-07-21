@@ -30,7 +30,7 @@ const SKILLS_DB = [
   'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP', 'Vercel', 'Netlify',
   'Heroku', 'DigitalOcean', 'Terraform', 'Ansible', 'Jenkins', 'GitHub Actions',
   'GitLab CI', 'CircleCI', 'ArgoCD', 'Prometheus', 'Grafana', 'Istio',
-  'Nginx', 'Apache','.Net'
+  'Nginx', 'Apache','.Net',
 
   // ===== TESTING =====
   'Jest', 'Cypress', 'Vitest', 'Testing Library', 'Mocha', 'Chai', 'Jasmine',
