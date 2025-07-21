@@ -1,9 +1,14 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { instructions } from '@/lib/constants'
 import useUploadStore from '@/store/UploadStore'
 import Link from 'next/link'
+import Image from 'next/image'
+import { Instructions } from '@/components/Instructions'
+import flyer from '../../../public/flyers.png'
+import curriculum from '../../../public/cvScreen.png'
+import { fetchJobs } from '@/app/api/ApiEmploi'
+
 
 export default function UploadPage() {
   const [isUploading, setIsUploading] = useState(false)
@@ -17,6 +22,17 @@ export default function UploadPage() {
     setError,
     reset
   } = useUploadStore()
+
+  useEffect(() => {
+    const getJobs = async () => {
+      console.log(process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_TOKEN)
+      
+      const jobs = await fetchJobs()
+     
+  
+    }
+    getJobs()
+  }, [])
 
   const handleFileChange = (event) => {
     const file = event.target.files[0]
@@ -73,12 +89,16 @@ export default function UploadPage() {
       setLoading(false)
     }
   }
+  
   return (
     <div className='flex flex-col justify-center min-h-screen max-w-screen-lg mx-auto gap-12 p-6'>
         <div className='flex flex-col md:flex-row justify-between w-full gap-6'>
           <div className='flex flex-col gap-4'>
-            <h1 className='text-4xl font-bold text-left'>UploadPage</h1>
-            <p>Upload your CV</p> 
+            <h1 className='text-4xl font-bold text-left'>Comment ça marche ?</h1>
+            <p>1. Importez votre CV</p> 
+            <p>2. Lancer l'analyse</p> 
+            <p>3. Analysez les résultats</p> 
+            <p className='text-sm font-light text-gray-500'>*Attention, l'analyse peut prendre jusqu'à 2 minutes</p>
           </div>
                       <div className='flex flex-col items-center justify-center gap-4'>
               <input
@@ -122,18 +142,10 @@ export default function UploadPage() {
       
       <div className='flex flex-col lg:flex-row justify-between container gap-6 mx-auto'>
         <div className='flex flex-col items-center justify-center w-full lg:w-1/2 gap-4 shadow-lg p-4 rounded-lg border border-gray-200'>
-            <h2 className='text-2xl font-bold'>Instructions pour le CV</h2>
-    
-            <ul className='w-full space-y-2'>
-                {instructions.map((instruction, index) => (
-                    <li className='w-full p-4 border border-gray-200 text-left rounded' key={index}>{instruction.name}</li>
-                ))}
-            </ul>
+            <Instructions />
         </div>
         <div className='flex flex-col items-center justify-center w-full lg:w-1/2 shadow-lg p-4 rounded-lg border border-gray-200'>
-            <h2 className='text-2xl font-bold'>Exemple de CV</h2>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.</p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.</p>
+            <Image src={curriculum} alt="CV Example" className='max-h-110 max-w-110 object-contain' />
         </div>
       </div>
     </div>

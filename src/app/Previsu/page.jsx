@@ -3,6 +3,7 @@ import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import useUploadStore from '@/store/UploadStore'
 import Link from 'next/link'
+import { Separator } from '@/components/ui/separator'
 
 export default function Previsu() {
   const searchParams = useSearchParams()
@@ -135,40 +136,45 @@ export default function Previsu() {
       {cvText && (
         <div className="mb-6 p-4 bg-gray-50 rounded-lg">
           <h2 className="text-xl font-bold mb-2">Informations du CV</h2>
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div>
-              <span className="font-semibold">Mots:</span> {cvStats?.wordCount || 0}
-            </div>
-            <div>
-              <span className="font-semibold">Caractères:</span> {cvStats?.characterCount || 0}
-            </div>
-            <div>
-              <span className="font-semibold">Type:</span> {cvStats?.fileType || ext}
-            </div>
-          </div>
+         
           
           {/* Boutons pour extraire les compétences */}
-          <div className="mt-4 flex gap-2">
-            <button
+          <div>
+      <div className="space-y-1">
+        <h4 className="text-sm leading-none font-medium">Radix Primitives</h4>
+        <p className="text-muted-foreground text-sm">
+          An open-source UI component library.
+        </p>
+      </div>
+      <Separator className="my-4" />
+      <div className="flex h-5 items-center space-x-4 text-sm">
+        <div>
+        <button
               onClick={extractSkills}
               disabled={skillsLoading}
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:bg-gray-400 transition-colors"
             >
               {skillsLoading ? 'Extraction...' : 'Extraire les compétences (Regex)'}
             </button>
-            
-            <button
+        </div>
+        <Separator orientation="vertical" />
+        <div>
+        <button
               onClick={extractSkillsNLP}
               disabled={skillsLoading}
               className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 disabled:bg-gray-400 transition-colors"
             >
               {skillsLoading ? 'Extraction...' : 'Extraire les compétences (NLP)'}
             </button>
-
-            <button className='text-sm font-light shadow-lg rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors'>
+        </div>
+        <Separator orientation="vertical" />
+        <div>
+        <button className='text-sm font-light shadow-lg rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors'>
               <Link href="/JobSearch">Lancer l'analyse</Link>
             </button>
-          </div>
+        </div>
+      </div>
+    </div>
 
           {skillsError && (
             <div className="mt-2 text-red-600">
@@ -211,20 +217,8 @@ export default function Previsu() {
           )}
         </div>
 
-        {/* Texte extrait */}
-        {cvText && (
-          <div className="border rounded-lg overflow-hidden">
-            <div className="bg-gray-100 p-3 border-b">
-              <h3 className="font-semibold">Texte extrait du CV</h3>
-            </div>
-            <div className="p-4 h-96 overflow-y-auto">
-              <pre className="whitespace-pre-wrap text-sm">{cvText}</pre>
-            </div>
-          </div>
-        )}
-
-        {/* Compétences extraites */}
-        {skills.length > 0 && (
+       {/* Compétences extraites */}
+       {skills.length > 0 && (
           <div className="border rounded-lg overflow-hidden">
             <div className="bg-gray-100 p-3 border-b">
               <h3 className="font-semibold">Compétences extraites ({skills.length})</h3>
@@ -243,6 +237,8 @@ export default function Previsu() {
             </div>
           </div>
         )}
+
+        
       </div>
     </div>
   )

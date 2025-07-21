@@ -10,7 +10,7 @@ export default function JobSearchPage() {
   const [selectedLocation, setSelectedLocation] = useState('')
   const { extractedSkills } = useUploadStore()
   
-  console.log("extractedSkills", extractedSkills)
+  //console.log("extractedSkills", extractedSkills)
   
   function calculateMatchingScore(jobSkills, extractedSkills) {
     if (!extractedSkills.length) return { matchingSkills: [], score: '0%' }
