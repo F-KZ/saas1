@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import JobCard from '@/components/JobCard'
-import fakeJobs from '../../../prisma/lib/jobsFiller'
+import fakeJobs from '@/lib/jobsFiller'
 import useUploadStore from '@/store/UploadStore'
 
 export default function JobSearchPage() {
