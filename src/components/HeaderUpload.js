@@ -34,7 +34,7 @@ export function SeparatorDemo() {
         <Separator orientation="vertical" />
         <div>
         <button className='text-sm font-light shadow-lg rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors'>
-              <Link href="/JobSearch">Lancer l'analyse</Link>
+              <Link href="/JobSearch">Lancer l&apos;analyse</Link>
             </button>
         </div>
       </div>
