@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { Previsu } from './Previsu/Previsu'
+import { Previsu } from './Previsu'
 
 export default function PrevisuPage() {
   return (
