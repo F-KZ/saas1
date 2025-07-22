@@ -8,7 +8,7 @@ export default function Home() {
         <h1>Hello World</h1>
         <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
           <li className="mb-2 tracking-[-.01em]">
-           Toutes les offres d'emplois{" "}
+           Toutes les offres d'emplois
             <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
               au même endroit
             </code>
