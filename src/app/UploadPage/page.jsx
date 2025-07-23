@@ -25,7 +25,8 @@ export default function UploadPage() {
 
   useEffect(() => {
     const getJobs = async () => {
-      console.log(process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_TOKEN)
+      console.log(process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_ID)
+      console.log(process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_SECRET)
       
       const jobs = await fetchJobs()
      
