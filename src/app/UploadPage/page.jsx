@@ -8,6 +8,7 @@ import { Instructions } from '@/components/Instructions'
 import flyer from '../../../public/flyers.png'
 import curriculum from '../../../public/cvScreen.png'
 import { fetchJobs } from '@/app/api/ApiEmploi'
+import getFranceTravailToken from '../api/jobs/route'
 
 
 export default function UploadPage() {
@@ -23,8 +24,9 @@ export default function UploadPage() {
     reset
   } = useUploadStore()
 
-  useEffect(() => {
-    const getJobs = async () => {
+  
+  useEffect(async () => {
+   const getJobs = async () => {
       console.log(process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_ID)
       console.log(process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_SECRET)
       
@@ -32,7 +34,8 @@ export default function UploadPage() {
      
   
     }
-    getJobs()
+    getJobs() 
+  
   }, [])
 
   const handleFileChange = (event) => {

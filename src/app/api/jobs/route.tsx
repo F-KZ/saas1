@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { NextResponse } from 'next/server';
 
+
 // TypeScript interfaces
 interface JobOffer {
   id: string;
@@ -41,6 +42,8 @@ export async function GET(request: Request) {
         { error: "Échec d'authentification avec France Travail" },
         { status: 401 }
       );
+    } else {
+      console.log('voici le token:', token);
     }
 
     // 4. Requête vers l'API (avec timeout)
@@ -129,18 +132,29 @@ function safeParseJSON(text: string) {
     return null;
   }
 }
+  
 
 // Gestion du token (pas de cache)
 async function getFranceTravailToken(): Promise<string | null> {
   try {
-    const authResponse = await axios('https://api.francetravail.io/partenaire/oauth2/access_token', {
+    console.log('URL:', 'https://francetravail.io/connexion/oauth2/access_token?realm=%2Fpartenaire');
+    console.log('ID:', process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_ID);
+    console.log('SECRET:', process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_SECRET);
+    console.log('Body:', new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_ID!,
+      client_secret: process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_SECRET!,
+      scope: 'api_offresdemploiv2 o2dsoffre'
+    }).toString());
+
+    const authResponse = await axios('https://francetravail.io/connexion/oauth2/access_token?realm=%2Fpartenaire', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       data: new URLSearchParams({
         grant_type: 'client_credentials',
-        client_id: process.env.FRANCE_TRAVAIL_ID!,
-        client_secret: process.env.FRANCE_TRAVAIL_SECRET!,
-        scope: 'api_offresdemploiv2'
+        client_id: process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_ID!,
+        client_secret: process.env.NEXT_PUBLIC_FRANCE_TRAVAIL_SECRET!,
+        scope: 'api_offresdemploiv2 o2dsoffre'
       }),
       timeout: 5000
     });
