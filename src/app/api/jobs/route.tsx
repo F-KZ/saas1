@@ -51,18 +51,11 @@ export async function GET(request: Request) {
     const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
     const jobsResponse = await fetch(`${API_BASE_URL}/offresdemploi/v2/offres/search`, {
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        metier,
-        lieu,
-        contrat,
-        range: '0-20',
-        tri: 'dateDesc'
-      }),
       signal: controller.signal,
       next: { revalidate: 3600 } // ISR
     });
@@ -81,7 +74,7 @@ export async function GET(request: Request) {
         },
         { status: jobsResponse.status > 500 ? 502 : jobsResponse.status }
       );
-    }
+    } 
 
     // 6. Transformation des données
     const rawData = await jobsResponse.json();
